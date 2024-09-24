@@ -1,0 +1,24 @@
+- name: "Playbook to show wrong behaviour of createtokenr"
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  tasks:
+  - name: Create a new token using username/password
+    ansible.controller.token:
+      description: 'Temporary token for subsequent tasks'
+      scope: "write"
+      state: present
+      controller_username: "{{ API_USERNAME }}"
+      controller_password: "{{ API_PASSWORD }}"
+      controller_host: "{{ tower_host | default('https://10.0.79.82/') }}"
+      validate_certs: false
+
+  - name: List running jobs for the hello_world.yml playbook
+    ansible.controller.job_list:
+      status: successful
+      query: {"playbook": "hello_world.yml"}
+      controller_oauthtoken: "{{ controller_token }}"
+      controller_host: "{{ tower_host | default('https://10.0.79.82/') }}"
+      validate_certs: false
+    register: testing_jobs

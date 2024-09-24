@@ -17,7 +17,7 @@
   - name: List running jobs for the hello_world.yml playbook
     ansible.controller.job_list:
       status: successful
-      query: {"playbook": "hello_world.yml"}
+      query: {"playbook": "test_playbook.yml"}
       controller_oauthtoken: "{{ controller_token }}"
       controller_host: "{{ tower_host | default('https://10.0.79.82/') }}"
       validate_certs: false

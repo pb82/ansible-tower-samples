@@ -26,4 +26,3 @@
   - name: Print the job info
     ansible.builtin.debug:
       var: testing_jobs
-      verbosity: 2

@@ -14,7 +14,7 @@
       controller_host: "{{ tower_host | default('https://10.0.79.82/') }}"
       validate_certs: false
 
-  - name: List running jobs for the hello_world.yml playbook
+  - name: List running jobs for the test_playbook.yml playbook
     ansible.controller.job_list:
       status: successful
       query: {"playbook": "test_playbook.yml"}
@@ -22,3 +22,8 @@
       controller_host: "{{ tower_host | default('https://10.0.79.82/') }}"
       validate_certs: false
     register: testing_jobs
+
+  - name: Print the job info
+    ansible.builtin.debug:
+      var: testing_jobs
+      verbosity: 2

@@ -5,3 +5,5 @@
       debug:
         msg: "Hello World!"
 
+    - foo.bar.baz:
+

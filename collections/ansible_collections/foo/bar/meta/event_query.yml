@@ -1,0 +1,3 @@
+{
+  "foo.bar.baz": ".[] | {name: .instance_uuid,canonical_facts: {ansible_machine_id: .instance_uuid,ansible_product_serial: .hw_product_uuid},facts: {device_type: 'VM',hypervisor: .hw_esxi_host}}"
+}

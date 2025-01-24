@@ -1,10 +1,6 @@
 - name: Hello World Sample
   hosts: all
   tasks:
-    - name: Generate password with default settings
-      ansible.builtin.debug:
-        var: lookup('community.general.random_words')
-
     - name: Hello Message
       debug:
         msg: "Hello World!"

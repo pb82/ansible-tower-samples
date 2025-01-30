@@ -1,0 +1,8 @@
+- name: Play get Azure environments variables
+  hosts: localhost
+  gather_facts: false
+  tags: always
+  tasks:
+    - name: Debug hostvars
+      ansible.builtin.debug:
+        var: hostvars

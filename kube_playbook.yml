@@ -1,0 +1,20 @@
+---
+- name: "Pod Status Check"
+  hosts: localhost
+  gather_facts: no
+  ignore_errors: true
+  collections:
+    - kubernetes.core
+  tasks:
+    - name: Get Cluster information
+      kubernetes.core.k8s_cluster_info:
+      register: cluster_information
+    - name: Get pods information
+      kubernetes.core.k8s_info:
+        kubeconfig: "~/.kube/config"
+        username: apikey
+        password: "{{apikey}}"
+        kind: Pod
+        label_selectors:
+          - app={{appName}}
+      register: pods_info

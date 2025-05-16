@@ -6,13 +6,21 @@
   collections:
     - kubernetes.core
   tasks:
+    - name: "Login first"
+      shell: |
+        oc login -u kubeadmin -p {{apikey}} --server=https://console-openshift-console.apps.aap-test-v416-x86-64-ljrbm.ocp4.testing.ansible.com
+      args:
+        executable: /bin/bash
+      async: 30
+      poll: 10
+      register: "output"
     - name: Get Cluster information
       kubernetes.core.k8s_cluster_info:
       register: cluster_information
     - name: Get pods information
       kubernetes.core.k8s_info:
         kubeconfig: "~/.kube/config"
-        username: apikey
+        username: kubeadmin
         password: "{{apikey}}"
         kind: Pod
         label_selectors:

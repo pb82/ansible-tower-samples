@@ -23,6 +23,4 @@
         username: kubeadmin
         password: "{{apikey}}"
         kind: Pod
-        label_selectors:
-          - app={{appName}}
       register: pods_info

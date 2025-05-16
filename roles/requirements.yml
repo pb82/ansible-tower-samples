@@ -4,4 +4,5 @@ roles:
   - name: geerlingguy.java
     version: "1.9.6" # note that ranges are not supported for roles
   - name: https://github.com/ansible-collections/kubernetes.core.git
-    version: "5.2.0"
+    type: git
+    version: "main"

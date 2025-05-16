@@ -8,7 +8,7 @@
   tasks:
     - name: "Login first"
       shell: |
-        oc login -u kubeadmin -p {{apikey}} --server=https://console-openshift-console.apps.aap-test-v416-x86-64-ljrbm.ocp4.testing.ansible.com
+        oc login --insecure-skip-tls-verify -u kubeadmin -p {{apikey}} --server=https://console-openshift-console.apps.aap-test-v416-x86-64-ljrbm.ocp4.testing.ansible.com
       args:
         executable: /bin/bash
       async: 30

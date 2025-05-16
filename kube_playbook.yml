@@ -8,7 +8,7 @@
   tasks:
     - name: "Login first"
       shell: |
-        oc login --token={{apikey}} --server=https://api.aap-test-v416-x86-64-ljrbm.ocp4.testing.ansible.com:6443
+        oc login --insecure-skip-tls-verify --token={{apikey}} --server=https://api.aap-test-v416-x86-64-ljrbm.ocp4.testing.ansible.com:6443
       args:
         executable: /bin/bash
       async: 30

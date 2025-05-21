@@ -1,0 +1,8 @@
+- name: "Playbook that only sleeps"
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  tasks:
+  - name: Pause for one minute to not cause any CPU load
+    ansible.builtin.pause:
+      minutes: 1

@@ -1,0 +1,10 @@
+- name: Set ansible_job_id
+  hosts: all
+  gather_facts: no
+
+  pre_tasks:
+    - name: Set Ansible Job ID
+      ansible.builtin.set_stats:
+        data:
+          ansible_job_id: "{{ tower_job_id }}"
+

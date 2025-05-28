@@ -1,0 +1,25 @@
+- name: Update Stable Inventory on Tower Host
+  hosts: all
+  gather_facts: no
+
+  vars:
+    cm_combine_run: 1
+
+  pre_tasks:
+    - name: Set Ansible Job ID
+      ansible.builtin.set_stats:
+        data:
+          ansible_job_id: "{{ tower_job_id }}"
+  tasks:
+
+    - name: Set ITSM Ticket Fields and Fail the playbook
+      block:
+        - name: Set ITSM Ticket Fields
+          ansible.builtin.set_stats:
+            data:
+              itsm_summary: "Stable Inventory Update Failed"
+
+        - name: Fail this playbook
+          ansible.builtin.fail:
+            msg: cm_combine_run.sh fails.
+      when: cm_combine_run != 0

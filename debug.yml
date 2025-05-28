@@ -1,0 +1,9 @@
+- name: Debug ansible_job_id
+  hosts: all
+  gather_facts: no
+
+  tasks:
+    - name: Debug ansible_job_id
+      ansible.builtin.debug:
+        var: ansible_job_id
+

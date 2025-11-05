@@ -1,24 +1,57 @@
 ---
-- name: Race condition test playbook
+- name: Race condition test playbook (Fixed)
   hosts: localhost
   gather_facts: no
-  collections:
-    - community.general
+  vars:
+    collection_path: "collections/ansible_collections/community/general/tests/integration/targets/filter_path_join_shim"
   tasks:
     - name: List job directories (for debugging)
       shell: |
         echo "=== Current job directory structure ==="
-        ls -la /tmp/aap_reproduction/ || true
+        ls -la /tmp/aap_reproduction/ || ls -la /tmp/ | grep awx || true
         echo "=== My working directory ==="
         pwd
-        echo "=== Collections directory ==="
-        ls -la collections/ || true
-        find collections/ -name "*filter_path_join_shim*" || true
+        echo "=== Contents of working directory ==="
+        ls -la .
+        echo "=== Runner directory ==="
+        ls -la /runner/ || true
+        echo "=== Project directory ==="
+        ls -la /runner/project/ || true
       register: debug_output
 
     - name: Show debug output
       debug:
         var: debug_output.stdout_lines
+
+    - name: Create collections directory structure
+      file:
+        path: "{{ collection_path }}"
+        state: directory
+        mode: '0755'
+      register: create_result
+
+    - name: Show directory creation result
+      debug:
+        var: create_result
+
+    - name: Verify directory was created
+      stat:
+        path: "{{ collection_path }}"
+      register: dir_stat
+
+    - name: Show directory stats
+      debug:
+        var: dir_stat
+
+    - name: List contents of collections directory
+      shell: find collections/ -type d | head -10
+      register: collections_tree
+      ignore_errors: yes
+
+    - name: Show collections tree
+      debug:
+        var: collections_tree.stdout_lines
+      when: collections_tree is succeeded
 
     - name: Simulate some work
       pause:
@@ -26,12 +59,56 @@
 
     - name: Touch collection test file
       file:
-        path: "collections/ansible_collections/community/general/tests/integration/targets/filter_path_join_shim/test_marker"
+        path: "{{ collection_path }}/test_marker"
         state: touch
+      register: touch_result
 
-    - name: Final directory check
-      shell: find /tmp/aap_reproduction/ -name "*filter_path_join_shim*" || true
-      register: final_check
+    - name: Show touch result
+      debug:
+        var: touch_result
 
-    - debug:
-        var: final_check.stdout_lines
+    - name: Final directory check - local
+      shell: find . -name "*filter_path_join_shim*" -o -name "*test_marker*" || true
+      register: final_check_local
+
+    - name: Final directory check - isolation paths
+      shell: |
+        echo "=== Checking isolation directories ==="
+        find /tmp -name "*awx_*" -type d 2>/dev/null | head -5 || true
+        echo "=== Checking for our test files ==="
+        find /tmp -name "*test_marker*" 2>/dev/null || true
+        echo "=== Checking for filter_path_join_shim ==="
+        find /tmp -name "*filter_path_join_shim*" 2>/dev/null || true
+      register: final_check_isolation
+      ignore_errors: yes
+
+    - name: Show final checks
+      debug:
+        msg:
+          - "Local check: {{ final_check_local.stdout_lines }}"
+          - "Isolation check: {{ final_check_isolation.stdout_lines }}"
+
+    - name: Create marker file with job info
+      copy:
+        content: |
+          Job ID: {{ ansible_job_id | default('unknown') }}
+          Job Number: {{ job_number | default('unknown') }}
+          Timestamp: {{ ansible_date_time.iso8601 | default(ansible_date_time.epoch) }}
+          Working Dir: {{ ansible_env.PWD | default('unknown') }}
+          Collections Path: {{ collection_path }}
+        dest: "{{ collection_path }}/job_info_{{ job_number | default('unknown') }}.txt"
+      register: job_info_result
+
+    - name: Show job info file result
+      debug:
+        var: job_info_result
+
+    - name: Final summary
+      debug:
+        msg: |
+          ===== JOB SUMMARY =====
+          Job Number: {{ job_number | default('N/A') }}
+          Collections directory created: {{ create_result.changed }}
+          Test marker created: {{ touch_result.changed }}
+          Working directory: {{ ansible_env.PWD | default('unknown') }}
+          ======================

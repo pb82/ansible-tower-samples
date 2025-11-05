@@ -1,0 +1,37 @@
+---
+- name: Race condition test playbook
+  hosts: localhost
+  gather_facts: no
+  collections:
+    - community.general
+  tasks:
+    - name: List job directories (for debugging)
+      shell: |
+        echo "=== Current job directory structure ==="
+        ls -la /tmp/aap_reproduction/ || true
+        echo "=== My working directory ==="
+        pwd
+        echo "=== Collections directory ==="
+        ls -la collections/ || true
+        find collections/ -name "*filter_path_join_shim*" || true
+      register: debug_output
+
+    - name: Show debug output
+      debug:
+        var: debug_output.stdout_lines
+
+    - name: Simulate some work
+      pause:
+        seconds: "{{ work_duration | default(5) }}"
+
+    - name: Touch collection test file
+      file:
+        path: "collections/ansible_collections/community/general/tests/integration/targets/filter_path_join_shim/test_marker"
+        state: touch
+
+    - name: Final directory check
+      shell: find /tmp/aap_reproduction/ -name "*filter_path_join_shim*" || true
+      register: final_check
+
+    - debug:
+        var: final_check.stdout_lines

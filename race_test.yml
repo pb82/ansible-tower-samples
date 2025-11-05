@@ -1,7 +1,7 @@
 ---
 - name: Race condition test playbook (Fixed)
   hosts: localhost
-  gather_facts: no
+  gather_facts: yes
   vars:
     collection_path: "collections/ansible_collections/community/general/tests/integration/targets/filter_path_join_shim"
   tasks:
@@ -18,6 +18,11 @@
         echo "=== Project directory ==="
         ls -la /runner/project/ || true
       register: debug_output
+
+    - name: Early collections access (race opportunity)
+      stat:
+        path: "collections/ansible_collections/community/general/tests/integration/targets/filter_path_join_shim"
+      register: early_access
 
     - name: Show debug output
       debug:
@@ -102,6 +107,11 @@
     - name: Show job info file result
       debug:
         var: job_info_result
+
+    - name: Force cross-job directory scanning (race trigger)
+      shell: 'echo "=== Scanning all job directories ==="; for dir in /tmp/race_test/awx_*/; do if [ -d "$dir" ]; then echo "Found job dir: $dir"; find "$dir" -name "*filter_path_join_shim*" 2>/dev/null || true; fi; done'
+      register: cross_scan
+      ignore_errors: yes
 
     - name: Final summary
       debug:

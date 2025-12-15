@@ -1,0 +1,13 @@
+- name: Get variables
+  hosts: all
+
+  tasks:
+    - name: Save all global variables for the complete workflow
+      ansible.builtin.set_stats:
+        data:
+          sec_disp_server_list: "{{ my_sec_disp_srv_list }}"
+          appl_server_list:     "{{ my_appl_server_list }}"
+          eai_server_list:      "{{ my_eai_server_list }}"
+        per_host: false
+        aggregate: false
+

@@ -1,0 +1,16 @@
+- hosts: all
+  gather_facts: false
+
+  tasks:
+    - name: Print my_sec_disp_srv_list
+      debug:
+        var: sec_disp_server_list
+
+    - name: Print my_appl_server_list
+      debug:
+        var: appl_server_list
+
+    - name: Print my_eai_server_list
+      debug:
+        var: eai_server_list
+

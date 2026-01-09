@@ -5,3 +5,9 @@
       debug:
         msg: "Hello World!"
 
+    - name: "Set some custom statistics"
+      set_stats:
+        data:
+          my_custom_var: "some_value"
+          build_number: 12345
+          deployment_status: "success"

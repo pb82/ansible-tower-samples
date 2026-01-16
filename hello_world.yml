@@ -11,3 +11,33 @@
           my_custom_var: "some_value"
           build_number: 12345
           deployment_status: "success"
+
+    - name: Show all extra vars passed to the playbook
+      ansible.builtin.debug:
+        msg: "All extra vars: {{ hostvars[inventory_hostname] | dict2items | selectattr('key', 'match', '^(?!ansible_|inventory_|group_names|groups|omit|playbook_dir|role_path).*') | list }}"
+
+    - name: Find and display variables that are empty strings
+      ansible.builtin.debug:
+        msg: "Variable '{{ item.key }}' is an empty string"
+      loop: "{{ hostvars[inventory_hostname] | dict2items }}"
+      when:
+        - item.value is string
+        - item.value == ""
+        - not item.key.startswith('ansible_')
+        - not item.key.startswith('inventory_')
+      loop_control:
+        label: "{{ item.key }}"
+
+    - name: Summary of empty string variables
+      ansible.builtin.set_fact:
+        empty_vars: "{{ hostvars[inventory_hostname] | dict2items | selectattr('value', 'equalto', '') | map(attribute='key') | reject('match', '^ansible_.*') | reject('match', '^inventory_.*') | list }}"
+
+    - name: Print summary
+      ansible.builtin.debug:
+        msg: |
+          === Empty String Variables Summary ===
+          Found {{ empty_vars | length }} variable(s) with empty string values:
+          {{ empty_vars | to_nice_yaml }}
+
+          These variables should not be passed at all if they are optional survey fields without a value.
+

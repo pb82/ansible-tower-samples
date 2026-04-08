@@ -1,0 +1,36 @@
+---
+# Reproduces AAP-60861:
+# Creates a workflow via IaC with a node-level limit, so you can compare
+# behavior vs. a manually created workflow in the AWX UI.
+- name: Setup AAP-60861 reproduction
+  hosts: localhost
+  gather_facts: false
+  collections:
+    - awx.awx
+
+  tasks:
+
+    - name: Create job template with ask_limit_on_launch
+      job_template:
+        name: test-limit-jt
+        organization: Default
+        project: Demo Project        # adjust to an existing project
+        playbook: hello_world.yml    # adjust to an existing playbook
+        inventory: Demo Inventory    # adjust to an existing inventory
+        ask_limit_on_launch: true
+        state: present
+
+    - name: Create workflow job template
+      workflow_job_template:
+        name: test-limit-wfjt-iac
+        organization: Default
+        state: present
+
+    - name: Create workflow node with limit override
+      workflow_job_template_node:
+        identifier: node-with-limit
+        workflow_job_template: test-limit-wfjt-iac
+        organization: Default
+        unified_job_template: test-limit-jt
+        limit: "reprotest-host"
+        state: present

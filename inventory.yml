@@ -1,0 +1,22 @@
+---
+all:
+  hosts:
+    localhost:
+      ansible_connection: local
+  children:
+    web:
+      hosts:
+        web-01:
+          ansible_host: localhost
+          ansible_connection: local
+        web-02:
+          ansible_host: localhost
+          ansible_connection: local
+    db:
+      hosts:
+        db-01:
+          ansible_host: localhost
+          ansible_connection: local
+        db-02:
+          ansible_host: localhost
+          ansible_connection: local
